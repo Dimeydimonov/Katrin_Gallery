@@ -7,37 +7,27 @@ use App\Http\Requests\Auth\LoginRequest;
 use App\Http\Requests\Auth\RegisterRequest;
 use App\Http\Requests\Auth\UpdateProfileRequest;
 use App\Http\Requests\Auth\UpdatePasswordRequest;
-use App\Http\Requests\Auth\ForgotPasswordRequest;
-use App\Http\Requests\Auth\ResetPasswordRequest;
-use Illuminate\Http\JsonResponse;
+use App\Services\Interfaces\Auth\AuthServiceInterface;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Password;
-use Illuminate\Support\Str;
-use Illuminate\Http\RedirectResponse;
 use Illuminate\View\View;
-use App\Models\User;
 
 class AuthController extends Controller
 {
-    public function __construct()
-    {
-    }
+    // DI
+    public function __construct(
+        private readonly AuthServiceInterface $authService
+    ) {}
 
-    
     public function showLoginForm(): View
     {
         return view('auth.login');
     }
 
-    
-    public function login(Request $request)
+    public function login(LoginRequest $request): RedirectResponse
     {
-        $credentials = $request->validate([
-            'email' => 'required|email',
-            'password' => 'required',
-        ]);
+        $credentials = $request->only('email', 'password');
 
         if (Auth::attempt($credentials, $request->boolean('remember'))) {
             $request->session()->regenerate();
@@ -46,89 +36,55 @@ class AuthController extends Controller
         }
 
         return back()->withErrors([
-            'email' => 'Неверный email или пароль.',
+            'email' => 'Невірний email або пароль.',
         ])->onlyInput('email');
     }
 
-    
     public function showRegistrationForm(): View
     {
         return view('auth.register');
     }
 
-    
-    public function register(Request $request)
+    public function register(RegisterRequest $request): RedirectResponse
     {
-        $request->validate([
-            'name' => 'required|string|max:255',
-            'email' => 'required|string|email|max:255|unique:users',
-            'password' => 'required|string|min:8|confirmed',
-        ]);
-
-        $user = User::create([
-            'name' => $request->name,
-            'email' => $request->email,
-            'password' => Hash::make($request->password),
-        ]);
+        $user = $this->authService->register($request->validated());
 
         Auth::login($user);
 
         return redirect('/');
     }
 
-    
-    public function logout(Request $request)
+    public function logout(Request $request): RedirectResponse
     {
         Auth::logout();
-        
+
         $request->session()->invalidate();
         $request->session()->regenerateToken();
-        
+
         return redirect('/');
     }
 
-    
     public function profile(): View
     {
         return view('profile.show', [
-            'user' => Auth::user()
+            'user' => Auth::user(),
         ]);
     }
 
-    
-    public function updateProfile(Request $request)
+    public function updateProfile(UpdateProfileRequest $request): RedirectResponse
     {
-        $user = Auth::user();
-        
-        $request->validate([
-            'name' => 'required|string|max:255',
-            'email' => 'required|string|email|max:255|unique:users,email,' . $user->id,
-        ]);
-        
-        $user->update([
-            'name' => $request->name,
-            'email' => $request->email,
-        ]);
+        $this->authService->updateUser($request->validated());
 
-        return back()->with('success', 'Профиль успешно обновлен.');
+        return back()->with('success', 'Профіль успішно оновлено.');
     }
 
-    
-    public function updatePassword(Request $request)
+    public function updatePassword(UpdatePasswordRequest $request): RedirectResponse
     {
-        $request->validate([
-            'current_password' => 'required',
-            'password' => 'required|string|min:8|confirmed',
-        ]);
+        $this->authService->updatePassword(
+            $request->input('current_password'),
+            $request->input('new_password')
+        );
 
-        if (!Hash::check($request->current_password, Auth::user()->password)) {
-            return back()->withErrors(['current_password' => 'Неверный текущий пароль.']);
-        }
-
-        Auth::user()->update([
-            'password' => Hash::make($request->password)
-        ]);
-
-        return back()->with('success', 'Пароль успешно обновлен.');
+        return back()->with('success', 'Пароль успішно оновлено.');
     }
 }

@@ -23,15 +23,4 @@ class LikeResource extends JsonResource
             'created_at_human' => $this->created_at?->diffForHumans(),
         ];
     }
-    
-    
-    public function with($request): array
-    {
-        return [
-            'meta' => [
-                'version' => '1.0',
-                'api_version' => 'v1',
-            ],
-        ];
-    }
 }

@@ -9,8 +9,6 @@ use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Database\Eloquent\Relations\HasManyThrough;
-use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class User extends Authenticatable implements MustVerifyEmail
 {
@@ -76,11 +74,6 @@ class User extends Authenticatable implements MustVerifyEmail
         return $this->avatar 
             ? asset('storage/avatars/' . $this->avatar)
             : 'https://ui-avatars.com/api/?name=' . urlencode($this->name) . '&color=7F9CF5&background=EBF4FF';
-    }
-
-    public function likedArtworks(): HasManyThrough
-    {
-        return $this->hasManyThrough(Artwork::class, Like::class, 'user_id', 'id', 'id', 'artwork_id');
     }
 
 }

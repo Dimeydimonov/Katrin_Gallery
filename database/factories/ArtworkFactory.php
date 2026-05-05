@@ -23,7 +23,7 @@ class ArtworkFactory extends Factory
             'size' => $this->faker->randomElement(['30x40 cm', '40x50 cm', '50x70 cm', '60x80 cm']),
             'materials' => $this->faker->randomElement(['Холст, масло', 'Акрил', 'Акварель', 'Графика']),
             'price' => $this->faker->numberBetween(1000, 100000),
-            'image_path' => 'artworks/' . $this->faker->image('public/storage/artworks', 800, 1000, null, false),
+            'image_path' => 'artworks/placeholder.jpg',
             'image_alt' => $this->faker->sentence,
             'is_available' => $this->faker->boolean(80), 
             'is_featured' => $this->faker->boolean(20), 

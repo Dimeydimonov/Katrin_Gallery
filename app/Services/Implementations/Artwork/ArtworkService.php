@@ -13,9 +13,10 @@
 	use Illuminate\Support\Facades\Storage;
 	use Illuminate\Support\Str;
 
+	// логика вынесена из контроллеров
 	class ArtworkService implements ArtworkServiceInterface
 	{
-		public function getAllArtworks(array $filters = [], int $perPage = 15): Collection
+		public function getAllArtworks(array $filters = [], int $perPage = 15): LengthAwarePaginator
 		{
 			$query = Artwork::with(['categories', 'user', 'images'])
 				->withCount(['likes', 'comments']);
@@ -177,7 +178,7 @@
 			}
 		}
 
-		public function getArtworksByCategory(int $categoryId, int $perPage = 15): Collection
+		public function getArtworksByCategory(int $categoryId, int $perPage = 15): LengthAwarePaginator
 		{
 			return Artwork::whereHas('categories', fn($q) => $q->where('categories.id', $categoryId))
 				->with(['categories','user','images'])
@@ -196,7 +197,7 @@
 				->get();
 		}
 
-		public function searchArtworks(string $query, int $perPage = 15): Collection
+		public function searchArtworks(string $query, int $perPage = 15): LengthAwarePaginator
 		{
 			return Artwork::where(fn($q) =>
 			$q->where('title','like',"%{$query}%")

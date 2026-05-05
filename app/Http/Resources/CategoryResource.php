@@ -32,15 +32,4 @@ class CategoryResource extends JsonResource
             'children' => self::collection($this->whenLoaded('children')),
         ];
     }
-    
-    
-    public function with($request): array
-    {
-        return [
-            'meta' => [
-                'version' => '1.0',
-                'api_version' => 'v1',
-            ],
-        ];
-    }
 }

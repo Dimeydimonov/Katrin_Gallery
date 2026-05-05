@@ -8,6 +8,7 @@ use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
+// загрузка картинок
 class ImageUploadService
 {
     public function uploadArtworkImage(UploadedFile $file, int $artworkId, int $order = 0, bool $isPrimary = false): ArtworkImage

@@ -79,10 +79,9 @@
                                         <img src="{{ asset('storage/' . $artwork->image_path) }}" 
                                              alt="{{ $artwork->title }}" 
                                              class="rounded" 
-                                             style="width: 60px; height: 60px; object-fit: cover;">
+                                             class="rounded admin-thumb">
                                     @else
-                                        <div class="bg-light rounded d-flex align-items-center justify-content-center" 
-                                             style="width: 60px; height: 60px;">
+                                        <div class="bg-light rounded d-flex align-items-center justify-content-center admin-thumb-placeholder">
                                             <i class="fas fa-image text-muted"></i>
                                         </div>
                                     @endif
@@ -123,8 +122,6 @@
                                         <i class="fas fa-heart text-danger"></i> {{ $artwork->likes_count }}
                                         <br>
                                         <i class="fas fa-comment text-info"></i> {{ $artwork->comments_count }}
-                                        <br>
-                                        <i class="fas fa-eye text-secondary"></i> {{ $artwork->views ?? 0 }}
                                     </small>
                                 </td>
                                 <td>
@@ -205,7 +202,7 @@
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
-                <form id="delete-form" method="POST" style="display: inline;">
+                <form id="delete-form" method="POST" class="d-inline">
                     @csrf
                     @method('DELETE')
                     <button type="submit" class="btn btn-danger">Удалить</button>
@@ -215,6 +212,20 @@
     </div>
 </div>
 @endsection
+
+@push('styles')
+<style>
+.admin-thumb {
+    width: 60px;
+    height: 60px;
+    object-fit: cover;
+}
+.admin-thumb-placeholder {
+    width: 60px;
+    height: 60px;
+}
+</style>
+@endpush
 
 @push('scripts')
 <script>

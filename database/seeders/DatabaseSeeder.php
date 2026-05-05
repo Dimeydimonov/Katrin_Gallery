@@ -90,7 +90,8 @@ class DatabaseSeeder extends Seeder
 
         
         $users->each(function ($user) use ($artworks) {
-            $artworksToLike = $artworks->random(rand(5, 15));
+            $count = min(rand(5, 15), $artworks->count());
+            $artworksToLike = $count > 0 ? $artworks->random($count) : collect();
             
             foreach ($artworksToLike as $artwork) {
                 

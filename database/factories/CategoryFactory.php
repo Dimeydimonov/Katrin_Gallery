@@ -17,7 +17,7 @@ class CategoryFactory extends Factory
             'name' => $name,
             'slug' => Str::slug($name),
             'description' => $this->faker->sentence,
-            'image_path' => 'categories/' . $this->faker->image('public/storage/categories', 640, 480, null, false),
+            'image_path' => 'categories/placeholder.jpg',
             'order' => $this->faker->numberBetween(1, 100),
             'is_active' => $this->faker->boolean(90), 
             'meta_title' => $this->faker->sentence,

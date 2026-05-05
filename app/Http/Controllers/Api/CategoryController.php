@@ -81,9 +81,8 @@ class CategoryController extends Controller
     
     public function destroy(Category $category): JsonResponse
     {
-        if ($category->image_url) {
-            $image = str_replace('/storage/', '', parse_url($category->image_url, PHP_URL_PATH));
-            Storage::disk('public')->delete($image);
+        if ($category->image_path) {
+            Storage::disk('public')->delete($category->image_path);
         }
 
         $category->delete();

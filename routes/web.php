@@ -7,8 +7,18 @@
 	use App\Http\Controllers\GalleryController;
 	use App\Http\Controllers\Admin\AdminController;
 	use Illuminate\Support\Facades\Route;
+	use Illuminate\Http\Request;
+
 
 	
+	// Language switcher
+	Route::get('/locale/{locale}', function (Request $request, $locale) {
+		if (in_array($locale, ['uk', 'en'])) {
+			session(['locale' => $locale]);
+		}
+		return redirect()->back();
+	})->name('locale.switch');
+
 	Route::get('/', [GalleryController::class, 'index'])->name('home');
 
 	

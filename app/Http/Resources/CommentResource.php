@@ -48,15 +48,4 @@ class CommentResource extends JsonResource
             ),
         ];
     }
-    
-    
-    public function with($request): array
-    {
-        return [
-            'meta' => [
-                'version' => '1.0',
-                'api_version' => 'v1',
-            ],
-        ];
-    }
 }

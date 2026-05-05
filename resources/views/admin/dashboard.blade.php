@@ -79,7 +79,6 @@
                             <h3>{{ $artwork->title }}</h3>
                             <small>
                                 <i class="fas fa-heart text-danger"></i> {{ $artwork->likes_count }}
-                                <i class="fas fa-eye text-info"></i> {{ $artwork->views }}
                             </small>
                         </div>
                     </div>

@@ -1,61 +1,165 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+Katrin Gallery - Art Portfolio Management System
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+Overview
+Katrin Gallery is a professional art gallery platform designed for artist Kateryna Pohrebenna from Odesa. Built with Laravel 12 and modern web technologies, it provides a comprehensive solution for showcasing and managing art portfolios with social engagement features.
 
-## About Laravel
+Features 
+Art Gallery: Organized artwork display with category management 
+Social Engagement: Like and comment system for artworks 
+Admin Panel: Full content management capabilities 
+Multi-language: Ukrainian and English language support 
+Responsive Design: Mobile-optimized viewing experience 
+Image Management: Advanced image upload and processing 
+REST API: Sanctum-powered API for external integrations 
+Search & Filter: Advanced artwork search and filtering
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+ Tech Stack
+Backend: Laravel 12, PHP 8.2
+Database: MySQL
+Authentication: Laravel Sanctum
+Containerization: Docker & Docker Compose
+Storage: Laravel Storage with public disk
+Localization: Built-in multi-language support
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+ Architecture Highlights 
+ Service Layer Pattern: Business logic separated from controllers 
+ Interface-based Design: Services implement contracts/interfaces 
+ Error Handling: Comprehensive exception management 
+ Clean Controllers: Thin controllers with dependency injection 
+ Repository Pattern: Data access abstraction (where applicable)
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+ Installation
 
-## Learning Laravel
+ Prerequisites
+Docker & Docker Compose
+Git
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+ Setup Instructions
+bash
+ Clone the repository
+git clone [repository-url]
+cd Katrin_Gallery
 
-You may also try the [Laravel Bootcamp](https://bootcamp.laravel.com), where you will be guided through building a modern Laravel application from scratch.
+ Start Docker containers
+docker compose up -d
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+ Enter the PHP container
+docker compose exec app bash
 
-## Laravel Sponsors
+ Install dependencies
+composer install
+npm install
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+ Configure environment
+cp .env.example .env
+php artisan key:generate
 
-### Premium Partners
+ Setup database
+php artisan migrate
+php artisan db:seed
 
-- **[Vehikl](https://vehikl.com)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development)**
-- **[Active Logic](https://activelogic.com)**
+ Create storage symlink
+php artisan storage:link
 
-## Contributing
+ Build frontend assets
+npm run build
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
 
-## Code of Conduct
+ Usage
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+ Access Points
+- Main Site: http://localhost
+- Admin Panel: http://localhost/admin
+  - Default credentials: `admin@example.com` / `password`
 
-## Security Vulnerabilities
+ API Documentation
+The API is secured with Laravel Sanctum. Available endpoints:
+- `GET /api/artworks` - List all artworks
+- `GET /api/artworks/{id}` - Get artwork details
+- `GET /api/categories` - List categories
+- `POST /api/artworks/{id}/like` - Like an artwork
+- `POST /api/artworks/{id}/comment` - Add comment
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+ Development
 
-## License
+ Commands
+bash
+ Development server with hot reload
+npm run dev
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+ Run tests
+php artisan test
+
+ Code formatting
+php artisan pint
+
+ Clear caches
+php artisan cache:clear
+php artisan config:clear
+php artisan route:clear
+
+ Generate API documentation
+php artisan l5-swagger:generate
+
+
+ Docker Services 
+ app: PHP-FPM application container
+nginx: Web server
+mysql: Database server
+redis: Cache and session storage (if configured)
+
+ Project Structure
+
+app/
+─ Http/
+  ── Controllers/       Thin controllers
+  ── Middleware/         Custom middleware
+─ Services/               Business logic layer
+─ Models/                 Eloquent models
+─ Contracts/              Service interfaces
+─ Exceptions/             Custom exceptions
+resources/
+─ views/                  Blade templates
+─ lang/                   Language files (ua/en)
+─ js/                     Frontend JavaScript
+routes/
+─ web.php                 Web routes
+─ api.php                 API routes
+database/─ migrations/             Database migrations─ seeders/                Database seeders
+
+
+ Testing
+bash
+ Run all tests
+php artisan test
+
+ Run specific test suite
+php artisan test --testsuite=Feature
+php artisan test --testsuite=Unit
+
+ Run with coverage
+php artisan test --coverage
+
+
+ Security
+CSRF protection enabled
+XSS prevention through blade escaping
+SQL injection prevention via Eloquent ORM
+API authentication with Sanctum tokens
+Rate limiting on API endpoints
+
+ Contributing
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
+
+ License
+This project is proprietary software. All rights reserved.
+
+ Support
+For support and inquiries, please contact the development team or create an issue in the repository.
+
+ Credits
+Developed for artist Kateryna Pohrebenna, Odesa, Ukraine.

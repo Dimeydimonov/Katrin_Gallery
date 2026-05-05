@@ -8,201 +8,114 @@ use App\Http\Requests\Artwork\UpdateArtworkRequest;
 use App\Http\Resources\ArtworkResource;
 use App\Models\Artwork;
 use App\Models\Category;
-use App\Models\Like;
+use App\Services\Interfaces\Artwork\ArtworkServiceInterface;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Storage;
 
 class ArtworkController extends Controller
 {
-    
-    public function index(): JsonResponse
+    public function __construct(
+        private readonly ArtworkServiceInterface $artworkService
+    ) {}
+
+    public function index(Request $request): JsonResponse
     {
-        $artworks = Artwork::with(['category', 'user', 'likes'])
-            ->latest()
-            ->paginate(12);
+        $filters = $request->only([
+            'category_id', 'search', 'sort_by', 'sort_direction',
+            'featured', 'is_available', 'user_id', 'price_from', 'price_to', 'year',
+        ]);
+
+        $artworks = $this->artworkService->getAllArtworks($filters);
 
         return response()->json([
             'status' => 'success',
-            'data' => $artworks
+            'data'   => ArtworkResource::collection($artworks)->response()->getData(true),
         ]);
     }
 
-    
     public function store(StoreArtworkRequest $request): JsonResponse
     {
-        $validated = $request->validated();
-        $validated['user_id'] = Auth::id();
-        
-        if ($request->hasFile('image')) {
-            $path = $request->file('image')->store('artworks', 'public');
-            $validated['image_path'] = $path;
-            
-            if (empty($validated['image_alt'])) {
-                $validated['image_alt'] = $validated['title'] . ' - произведение искусства';
-            }
-        }
-        
-        $artwork = Artwork::create($validated);
-        
+        $data          = $request->validated();
+        $data['user_id'] = Auth::id();
+
+        $artwork = $this->artworkService->createArtwork($data, $request->file('image'));
+
         return response()->json([
-            'status' => 'success',
-            'message' => 'Произведение успешно создано',
-            'data' => $artwork->load(['category', 'user'])
+            'status'  => 'success',
+            'message' => 'Твір успішно створено',
+            'data'    => new ArtworkResource($artwork),
         ], 201);
     }
 
-    
     public function show(Artwork $artwork): JsonResponse
     {
+        $artwork->load(['categories', 'user', 'comments.user', 'likes.user', 'images']);
+
         return response()->json([
             'status' => 'success',
-            'data' => $artwork->load(['category', 'user', 'comments.user', 'likes.user'])
+            'data'   => new ArtworkResource($artwork),
         ]);
     }
 
-    
     public function update(UpdateArtworkRequest $request, Artwork $artwork): JsonResponse
     {
         $this->authorize('update', $artwork);
-        
-        $validated = $request->validated();
-        
-        if ($request->hasFile('image')) {
-            if ($artwork->image_path) {
-                Storage::disk('public')->delete($artwork->image_path);
-            }
-            
-            $path = $request->file('image')->store('artworks', 'public');
-            $validated['image_path'] = $path;
-        }
-        
-        $artwork->update($validated);
-        
+
+        $artwork = $this->artworkService->updateArtwork($artwork, $request->validated(), $request->file('image'));
+
         return response()->json([
-            'status' => 'success',
-            'message' => 'Произведение успешно обновлено',
-            'data' => $artwork->load(['category', 'user'])
+            'status'  => 'success',
+            'message' => 'Твір успішно оновлено',
+            'data'    => new ArtworkResource($artwork),
         ]);
     }
 
-    
-    
     public function destroy(Artwork $artwork): JsonResponse
     {
         $this->authorize('delete', $artwork);
 
-        if ($artwork->image_url) {
-            $image = str_replace('/storage/', '', parse_url($artwork->image_url, PHP_URL_PATH));
-            Storage::disk('public')->delete($image);
-        }
-
-        $artwork->delete();
+        $this->artworkService->deleteArtwork($artwork);
 
         return response()->json([
-            'status' => 'success',
-            'message' => 'Произведение успешно удалено'
+            'status'  => 'success',
+            'message' => 'Твір успішно видалено',
         ]);
     }
 
-    
     public function getByCategory(Category $category): JsonResponse
     {
-        $artworks = $category->artworks()
-            ->with(['category', 'user', 'likes'])
-            ->latest()
-            ->paginate(12);
+        $artworks = $this->artworkService->getArtworksByCategory($category->id);
 
         return response()->json([
-            'status' => 'success',
-            'data' => $artworks,
-            'category' => $category
+            'status'   => 'success',
+            'data'     => ArtworkResource::collection($artworks)->response()->getData(true),
+            'category' => $category,
         ]);
     }
 
-    
     public function featured(): JsonResponse
     {
-        $artworks = Artwork::with(['category', 'user', 'likes'])
-            ->where('is_featured', true)
-            ->inRandomOrder()
-            ->take(6)
-            ->get();
+        $artworks = $this->artworkService->getFeaturedArtworks();
 
         return response()->json([
             'status' => 'success',
-            'data' => $artworks
+            'data'   => ArtworkResource::collection($artworks),
         ]);
     }
 
-    
     public function search(Request $request): JsonResponse
     {
         $request->validate([
             'query' => 'required|string|min:2|max:255',
         ]);
 
-        $query = $request->input('query');
-        
-        $artworks = Artwork::with(['category', 'user', 'likes'])
-            ->where('title', 'like', "%{$query}%")
-            ->orWhere('description', 'like', "%{$query}%")
-            ->latest()
-            ->paginate(12);
+        $artworks = $this->artworkService->searchArtworks($request->input('query'));
 
         return response()->json([
-            'status' => 'success',
-            'data' => $artworks,
-            'search_query' => $query
-        ]);
-    }
-
-    
-    public function like(Artwork $artwork): JsonResponse
-    {
-        $user = Auth::user();
-        
-        $existingLike = $artwork->likes()->where('user_id', $user->id)->first();
-        
-        if ($existingLike) {
-            return response()->json([
-                'status' => 'error',
-                'message' => 'Вы уже поставили лайк этому произведению'
-            ], 422);
-        }
-        
-        $like = new Like(['user_id' => $user->id]);
-        $artwork->likes()->save($like);
-        
-        return response()->json([
-            'status' => 'success',
-            'message' => 'Лайк успешно поставлен',
-            'likes_count' => $artwork->likes()->count()
-        ]);
-    }
-
-    
-    public function unlike(Artwork $artwork): JsonResponse
-    {
-        $user = Auth::user();
-        
-        $like = $artwork->likes()->where('user_id', $user->id)->first();
-        
-        if (!$like) {
-            return response()->json([
-                'status' => 'error',
-                'message' => 'Вы еще не ставили лайк этому произведению'
-            ], 422);
-        }
-        
-        $like->delete();
-        
-        return response()->json([
-            'status' => 'success',
-            'message' => 'Лайк успешно удален',
-            'likes_count' => $artwork->likes()->count()
+            'status'       => 'success',
+            'data'         => ArtworkResource::collection($artworks)->response()->getData(true),
+            'search_query' => $request->input('query'),
         ]);
     }
 }

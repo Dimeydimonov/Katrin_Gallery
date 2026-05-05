@@ -4,65 +4,50 @@ namespace App\Http\Controllers;
 
 use App\Models\Artwork;
 use App\Models\Category;
-use App\Models\User;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Str;
 
 class GalleryController extends Controller
 {
-    
-    
-    
     public function index()
     {
         try {
-            $featuredArtworks = collect(); 
+            $featuredArtworks = collect();
             $recentArtworks = collect();
-            $popularArtworks = collect();
             $categories = collect();
-            $featuredArtist = null;
 
             try {
                 $featuredArtworks = Artwork::with(['user', 'categories'])
                     ->where('is_available', true)
                     ->take(8)
                     ->get();
-                    
+
                 $categories = Category::take(10)->get();
-                
+
                 $recentArtworks = Artwork::with(['user', 'categories'])
                     ->where('is_available', true)
                     ->latest()
                     ->take(8)
                     ->get();
             } catch (\Exception $dbError) {
-                \Log::info('Database not ready yet: ' . $dbError->getMessage());
+                \Log::warning('Database not ready: ' . $dbError->getMessage());
             }
 
             return view('gallery.index', compact(
                 'featuredArtworks',
-                'recentArtworks', 
-                'popularArtworks',
-                'featuredArtist',
+                'recentArtworks',
                 'categories'
             ));
-            
+
         } catch (\Exception $e) {
             \Log::error('Error in GalleryController@index: ' . $e->getMessage());
             return response()->view('gallery.index', [
                 'featuredArtworks' => collect(),
                 'recentArtworks' => collect(),
-                'popularArtworks' => collect(),
-                'featuredArtist' => null,
                 'categories' => collect()
             ]);
         }
     }
 
-    
-    
     public function show($slug)
     {
         try {
@@ -80,8 +65,6 @@ class GalleryController extends Controller
             ->where('is_available', true)
             ->firstOrFail();
 
-            $artwork->increment('views');
-
             $relatedArtworks = Artwork::whereHas('categories', function($query) use ($artwork) {
                 $query->whereIn('categories.id', $artwork->categories->pluck('id'));
             })
@@ -97,23 +80,21 @@ class GalleryController extends Controller
                 'artwork' => $artwork,
                 'relatedArtworks' => $relatedArtworks,
                 'title' => $artwork->title . ' | ' . config('app.name'),
-                'description' => $artwork->description ?: 'Произведение искусства от ' . $artwork->user->name
+                'description' => $artwork->description ?: __('app.gallery_artwork_by', ['name' => $artwork->user->name])
             ]);
-            
+
         } catch (\Exception $e) {
             \Log::error('Error in GalleryController@show: ' . $e->getMessage());
-            return back()->with('error', 'Произведение не найдено или временно недоступно.');
+            return back()->with('error', __('app.gallery_artwork_not_found'));
         }
     }
 
-    
     public function all(Request $request)
     {
         try {
             $query = Artwork::with(['user', 'categories'])
                 ->where('is_available', true)
-                ->withCount(['likes', 'comments'])
-                ->latest();
+                ->withCount(['likes', 'comments']);
 
             if ($request->has('category')) {
                 $query->whereHas('categories', function($q) use ($request) {
@@ -123,9 +104,6 @@ class GalleryController extends Controller
 
             $sortBy = $request->get('sort', 'newest');
             switch ($sortBy) {
-                case 'popular':
-                    $query->orderBy('views', 'desc');
-                    break;
                 case 'likes':
                     $query->orderBy('likes_count', 'desc');
                     break;
@@ -141,39 +119,33 @@ class GalleryController extends Controller
             return view('gallery.artworks', [
                 'artworks' => $artworks,
                 'categories' => $categories,
-                'title' => 'Все работы',
-                'description' => 'Просмотр всех произведений искусства в галерее.'
+                'title' => __('app.gallery_all_works'),
+                'description' => __('app.gallery_all_description')
             ]);
-            
+
         } catch (\Exception $e) {
             \Log::error('Error in GalleryController@all: ' . $e->getMessage());
-            return back()->with('error', 'Произошла ошибка при загрузке работ.');
+            return back()->with('error', __('app.gallery_load_error'));
         }
     }
 
-    
     public function category($slug, Request $request)
     {
         try {
             $category = Category::where('slug', $slug)->firstOrFail();
-            
+
             $query = $category->artworks()
                 ->with(['user', 'categories'])
                 ->where('is_available', true)
-                ->withCount('likes')
-                ->latest();
+                ->withCount('likes');
 
             $sortBy = $request->get('sort', 'newest');
             switch ($sortBy) {
                 case 'oldest':
                     $query->oldest();
                     break;
-                case 'popular':
-                    $query->orderBy('views', 'desc');
-                    break;
                 case 'likes':
-                    $query->withCount('likes')
-                          ->orderBy('likes_count', 'desc');
+                    $query->orderBy('likes_count', 'desc');
                     break;
                 default:
                     $query->latest();
@@ -192,13 +164,13 @@ class GalleryController extends Controller
                 'category' => $category,
                 'categories' => $categories,
                 'title' => $category->name . ' | ' . config('app.name'),
-                'description' => $category->description ?: 'Работы в категории ' . $category->name,
+                'description' => $category->description ?: __('app.gallery_category_works', ['name' => $category->name]),
                 'sortBy' => $sortBy
             ]);
-            
+
         } catch (\Exception $e) {
             \Log::error('Error in GalleryController@category: ' . $e->getMessage());
-            return back()->with('error', 'Категория не найдена или временно недоступна.');
+            return back()->with('error', __('app.gallery_category_not_found'));
         }
     }
 }

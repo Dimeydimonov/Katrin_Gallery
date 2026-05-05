@@ -18,11 +18,6 @@ Route::prefix('auth')->group(function () {
     
     Route::post('/login', [AuthController::class, 'login']);
     
-    
-    Route::post('/forgot-password', [AuthController::class, 'forgotPassword']);
-    
-    
-    Route::post('/reset-password', [AuthController::class, 'resetPassword']);
 });
 
 
@@ -54,7 +49,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('artworks/{artwork}/check-like', [LikeController::class, 'check']);
     
     
-    Route::middleware(['role:admin'])->group(function () {
+    Route::middleware(['admin'])->group(function () {
         Route::apiResource('categories', CategoryController::class);
     });
     
@@ -65,21 +60,22 @@ Route::middleware('auth:sanctum')->group(function () {
     
     Route::apiResource('comments', CommentController::class)->except(['index', 'show']);
     Route::get('artworks/{artwork}/comments', [CommentController::class, 'index']);
-    Route::get('comments/{comment}/replies', [CommentController::class, 'replies']);
+    Route::get('comments/{comment}/replies', [CommentController::class, 'getReplies']);
     Route::post('comments/{comment}/reply', [CommentController::class, 'store']);
 });
 
 
 Route::get('public/artworks', [ArtworkController::class, 'index']);
-Route::get('public/artworks/{artwork}', [ArtworkController::class, 'show']);
-Route::get('public/artworks/category/{category}', [ArtworkController::class, 'getByCategory']);
 Route::get('public/artworks/featured', [ArtworkController::class, 'featured']);
+Route::get('public/artworks/search', [ArtworkController::class, 'search']);
+Route::get('public/artworks/category/{category}', [ArtworkController::class, 'getByCategory']);
+Route::get('public/artworks/{artwork}', [ArtworkController::class, 'show']);
 Route::get('public/categories', [CategoryController::class, 'index']);
 Route::get('public/categories/{category}', [CategoryController::class, 'show']);
 
 
 Route::get('public/artworks/{artwork}/comments', [CommentController::class, 'index']);
-Route::get('public/comments/{comment}/replies', [CommentController::class, 'replies']);
+Route::get('public/comments/{comment}/replies', [CommentController::class, 'getReplies']);
 
 
 Route::get('public/artworks/{artwork}/likes/count', [\App\Http\Controllers\Api\LikeController::class, 'getLikesCount']);

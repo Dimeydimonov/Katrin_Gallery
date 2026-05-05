@@ -10,6 +10,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 
+// лайки
 class LikeController extends Controller
 {
     
@@ -147,8 +148,7 @@ class LikeController extends Controller
                     return [
                         'id' => $user->id,
                         'name' => $user->name,
-                        'avatar' => $user->getFirstMediaUrl('avatar', 'thumb'),
-                        'profile_url' => route('profile.show', $user->id)
+                        'avatar' => $user->photo_url,
                     ];
                 })
             ]);

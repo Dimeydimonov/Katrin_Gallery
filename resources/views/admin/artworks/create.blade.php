@@ -40,8 +40,6 @@
 
                 <form action="{{ route('admin.artworks.store') }}" method="POST" enctype="multipart/form-data" id="artwork-form">
                     @csrf
-                    <input type="hidden" name="debug" value="1">
-                    
                     <!-- Title -->
                     <div class="form-group mb-3">
                         <label for="title" class="form-label">Название произведения <span class="text-danger">*</span></label>
@@ -77,7 +75,7 @@
                                    multiple 
                                    accept="image/*" 
                                    class="form-control @error('images') is-invalid @enderror" 
-                                   style="display: none;">
+                                   class="d-none">
                             
                             <div class="upload-content">
                                 <div class="mb-3">
@@ -94,7 +92,7 @@
                                 </div>
                             </div>
 
-                            <div class="preview-content" style="display: none;">
+                            <div class="preview-content d-none">
                                 <div id="images-preview" class="row g-2"></div>
                                 <div class="mt-3">
                                     <button type="button" class="btn btn-sm btn-outline-secondary" id="change-images">
@@ -283,6 +281,107 @@
 </div>
 @endsection
 
+@push('styles')
+<style>
+.upload-zone {
+    transition: all 0.3s ease;
+}
+
+.upload-zone:hover {
+    border-color: #0d6efd !important;
+    background-color: rgba(13, 110, 253, 0.05);
+}
+
+.upload-zone.drag-over {
+    border-color: #0d6efd !important;
+    background-color: rgba(13, 110, 253, 0.1);
+    transform: scale(1.02);
+}
+
+.image-item {
+    position: relative;
+    border: 2px solid #dee2e6;
+    border-radius: 8px;
+    overflow: hidden;
+    transition: all 0.3s ease;
+    cursor: move;
+}
+
+.image-item:hover {
+    border-color: #0d6efd;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+.image-item.primary-image {
+    border-color: #198754;
+    box-shadow: 0 0 0 2px rgba(25, 135, 84, 0.25);
+}
+
+.image-container {
+    position: relative;
+    width: 100%;
+    height: 150px;
+    overflow: hidden;
+}
+
+.image-container img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.image-controls {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    display: flex;
+    gap: 5px;
+}
+
+.image-controls .btn {
+    padding: 4px 8px;
+    font-size: 12px;
+    opacity: 0.9;
+}
+
+.primary-badge {
+    font-size: 10px;
+    padding: 2px 6px;
+}
+
+.sortable-ghost {
+    opacity: 0.5;
+}
+
+.admin-thumb {
+    width: 60px;
+    height: 60px;
+    object-fit: cover;
+}
+
+.admin-thumb-placeholder {
+    width: 60px;
+    height: 60px;
+}
+
+.image-preview-thumb {
+    height: 100px;
+    object-fit: cover;
+    width: 100%;
+}
+
+#images-preview-container {
+    animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+</style>
+@endpush
+
 @push('scripts')
 <script>
 document.addEventListener('DOMContentLoaded', function() {
@@ -294,7 +393,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const changeImagesBtn = document.getElementById('change-images');
 
     uploadArea.addEventListener('click', function() {
-        if (!previewContent.style.display || previewContent.style.display === 'none') {
+        if (previewContent.classList.contains('d-none')) {
             imagesInput.click();
         }
     });
@@ -376,7 +475,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 
                 col.innerHTML = `
                     <div class="position-relative">
-                        <img src="${e.target.result}" class="img-fluid rounded" style="height: 100px; object-fit: cover; width: 100%;">
+                        <img src="${e.target.result}" class="img-fluid rounded image-preview-thumb">
                         ${index === 0 ? '<span class="badge bg-primary position-absolute top-0 start-0 m-1">Главное</span>' : ''}
                     </div>
                 `;
@@ -386,112 +485,15 @@ document.addEventListener('DOMContentLoaded', function() {
             reader.readAsDataURL(file);
         });
         
-        uploadContent.style.display = 'none';
-        previewContent.style.display = 'block';
+        uploadContent.classList.add('d-none');
+        previewContent.classList.remove('d-none');
     }
 
     document.getElementById('artwork-form').addEventListener('submit', function(e) {
-        console.log('🚀 FORM SUBMIT EVENT TRIGGERED!');
-        
-        const title = document.getElementById('title').value.trim();
-        console.log('📝 Title value:', title);
-        
-        const fileInput = document.getElementById('images');
-        console.log('📁 File input files count:', fileInput.files.length);
-        
-        if (fileInput.files.length > 0) {
-            console.log('📸 Files selected:', Array.from(fileInput.files).map(f => f.name));
-        }
-        
-        console.log('✅ Form validation passed, submitting...');
-        
         return true;
     });
 });
 </script>
 
-<style>
-.upload-zone {
-    transition: all 0.3s ease;
-}
-
-.upload-zone:hover {
-    border-color: #0d6efd !important;
-    background-color: rgba(13, 110, 253, 0.05);
-}
-
-.upload-zone.drag-over {
-    border-color: #0d6efd !important;
-    background-color: rgba(13, 110, 253, 0.1);
-    transform: scale(1.02);
-}
-
-.image-item {
-    position: relative;
-    border: 2px solid #dee2e6;
-    border-radius: 8px;
-    overflow: hidden;
-    transition: all 0.3s ease;
-    cursor: move;
-}
-
-.image-item:hover {
-    border-color: #0d6efd;
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-}
-
-.image-item.primary-image {
-    border-color: #198754;
-    box-shadow: 0 0 0 2px rgba(25, 135, 84, 0.25);
-}
-
-.image-container {
-    position: relative;
-    width: 100%;
-    height: 150px;
-    overflow: hidden;
-}
-
-.image-container img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-}
-
-.image-controls {
-    position: absolute;
-    top: 5px;
-    right: 5px;
-    display: flex;
-    gap: 5px;
-}
-
-.image-controls .btn {
-    padding: 4px 8px;
-    font-size: 12px;
-    opacity: 0.9;
-}
-
-.primary-badge {
-    font-size: 10px;
-    padding: 2px 6px;
-}
-
-.sortable-ghost {
-    opacity: 0.5;
-}
-
-#images-preview-container {
-    animation: fadeIn 0.3s ease;
-}
-
-@keyframes fadeIn {
-    from { opacity: 0; transform: translateY(10px); }
-    to { opacity: 1; transform: translateY(0); }
-}
-
-</style>
-
-<div data-artwork-id="new" style="display: none;"></div>
+<div data-artwork-id="new" class="d-none"></div>
 @endpush

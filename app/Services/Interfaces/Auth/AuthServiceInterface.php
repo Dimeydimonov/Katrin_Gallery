@@ -5,6 +5,7 @@ namespace App\Services\Interfaces\Auth;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Model;
 
+// авторизация
 interface AuthServiceInterface
 {
     

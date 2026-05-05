@@ -2,43 +2,40 @@
     <div class="footer-container">
         <div class="footer-grid">
             <div class="footer-about">
-                <h3 class="footer-heading">ArtGallery</h3>
-                <p class="footer-text">
-                    Художественная галерея, где талантливые художники со всего мира делятся своими произведениями искусства.
-                    Откройте для себя удивительный мир творчества и вдохновения.
-                </p>
+                <h3 class="footer-heading">KatArts</h3>
+                <p class="footer-text">{{ __('app.footer_about_text') }}</p>
                 <div class="footer-social-links">
+                    <a href="https://www.instagram.com/katerina_lightart/" target="_blank" class="footer-social-link" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+                    <a href="#" class="footer-social-link" aria-label="Telegram"><i class="fab fa-telegram"></i></a>
                     <a href="#" class="footer-social-link" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
-                    <a href="#" class="footer-social-link" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
-                    <a href="#" class="footer-social-link" aria-label="Twitter"><i class="fab fa-twitter"></i></a>
-                    <a href="#" class="footer-social-link" aria-label="Pinterest"><i class="fab fa-pinterest"></i></a>
+                    <a href="#" class="footer-social-link" aria-label="TikTok"><i class="fab fa-tiktok"></i></a>
                 </div>
             </div>
 
             <div class="footer-nav">
-                <h3 class="footer-heading">Навигация</h3>
+                <h3 class="footer-heading">{{ __('app.footer_nav') }}</h3>
                 <ul class="footer-links">
-                    <li><a href="{{ route('home') }}" class="footer-link">Главная</a></li>
-                    <li><a href="{{ route('gallery.all') }}" class="footer-link">Галерея</a></li>
-                    <li><a href="#" class="footer-link">Категории</a></li>
-                    <li><a href="#" class="footer-link">О нас</a></li>
+                    <li><a href="/" class="footer-link">{{ __('app.nav_home') }}</a></li>
+                    <li><a href="{{ route('gallery.all') }}" class="footer-link">{{ __('app.nav_gallery') }}</a></li>
+                    <li><a href="/#about" class="footer-link">{{ __('app.nav_about') }}</a></li>
+                    <li><a href="/#services" class="footer-link">{{ __('app.footer_services') }}</a></li>
+                    <li><a href="/#contact" class="footer-link">{{ __('app.nav_contacts') }}</a></li>
                 </ul>
             </div>
 
             <div class="footer-support">
-                <h3 class="footer-heading">Поддержка</h3>
+                <h3 class="footer-heading">{{ __('app.footer_contacts') }}</h3>
                 <ul class="footer-links">
-                    <li><a href="#" class="footer-link">Помощь</a></li>
-                    <li><a href="#" class="footer-link">Контакты</a></li>
-                    <li><a href="#" class="footer-link">Политика конфиденциальности</a></li>
-                    <li><a href="#" class="footer-link">Условия использования</a></li>
+                    <li><a href="mailto:lavkatvorchestva@gmail.com" class="footer-link"><i class="far fa-envelope"></i> Email</a></li>
+                    <li><a href="tel:+380505585438" class="footer-link"><i class="fas fa-phone"></i> +38 050 558 5438</a></li>
+                    <li><span class="footer-link footer-location"><i class="fas fa-map-marker-alt"></i> Odesa, Ukraine</span></li>
                 </ul>
             </div>
         </div>
 
         <div class="footer-bottom">
-            <p class="footer-copyright">&copy; {{ date('Y') }} ArtGallery. Все права защищены.</p>
-            <p class="footer-made-with">Создано с <i class="fas fa-heart"></i> для любителей искусства</p>
+            <p>{!! __('app.footer_rights', ['year' => date('Y')]) !!}</p>
+            <p class="footer-made-with">{{ __('app.footer_made_with') }} <i class="fas fa-heart"></i></p>
         </div>
     </div>
 </footer>

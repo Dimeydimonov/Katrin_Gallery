@@ -41,15 +41,4 @@ class UserResource extends JsonResource
         $user = auth()->user();
         return $user && ($user->id === $this->id || $user->hasRole('admin'));
     }
-    
-    
-    public function with($request): array
-    {
-        return [
-            'meta' => [
-                'version' => '1.0',
-                'api_version' => 'v1',
-            ],
-        ];
-    }
 }

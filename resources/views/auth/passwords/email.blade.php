@@ -5,12 +5,12 @@
     <div class="max-w-md w-full space-y-8">
         <div>
             <h2 class="mt-6 text-center text-3xl font-extrabold text-gray-900">
-                Сброс пароля
+                {{ __('app.forgot_title') }}
             </h2>
         </div>
         <div class="bg-white shadow rounded-lg p-6">
     <div class="mb-4 text-sm text-gray-600">
-        {{ __('Забыли пароль? Без проблем. Просто сообщите нам свой email, и мы вышлем вам ссылку для сброса пароля.') }}
+        {{ __('app.forgot_text') }}
     </div>
 
     @if (session('status'))
@@ -35,7 +35,7 @@
         <div class="flex items-center justify-end">
             <button type="submit"
                     class="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
-                {{ __('Отправить ссылку для сброса пароля') }}
+                {{ __('app.forgot_btn') }}
             </button>
         </div>
     </form>

@@ -45,15 +45,4 @@ class ArtworkResource extends JsonResource
             'updated_at_formatted' => $this->updated_at?->format('d.m.Y H:i'),
         ];
     }
-    
-    
-    public function with($request): array
-    {
-        return [
-            'meta' => [
-                'version' => '1.0',
-                'api_version' => 'v1',
-            ],
-        ];
-    }
 }

@@ -1,79 +1,48 @@
-<div class="artwork-card group">
-    <a href="{{ route('gallery.show', $artwork) }}" class="block relative">
+<div class="artwork-card reveal">
+    <a href="{{ route('gallery.show', $artwork) }}">
         @if($artwork->is_featured)
             <span class="featured-badge">
-                <i class="fas fa-star mr-1"></i> Избранное
+                <i class="fas fa-star"></i> {{ __('app.gallery_featured') }}
             </span>
         @endif
 
-        <button type="button"
-                class="like-button"
-                data-artwork-id="{{ $artwork->id }}">
-            <i class="far fa-heart"></i>
-            <span class="like-count ml-1">{{ $artwork->likes_count ?? 0 }}</span>
-        </button>
-
-        <div class="artwork-image-container">
+        <div class="artwork-card-img-wrap">
             @php($img = $artwork->main_image_url)
             @if($img)
-                <img src="{{ $img }}" 
-                     alt="{{ $artwork->title }}" 
-                     class="artwork-image" 
-                     loading="lazy">
+                <img src="{{ $img }}" alt="{{ $artwork->title }}" class="artwork-card-img" loading="lazy">
             @else
-                <div class="w-full h-full bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center">
-                    <i class="fas fa-image text-4xl text-gray-400"></i>
-                </div>
+                <div class="no-image-placeholder"><i class="fas fa-image"></i></div>
             @endif
+
+            <div class="artwork-card-hover">
+                <p class="artwork-card-hover-title">{{ $artwork->title }}</p>
+                @if($artwork->description)
+                    <p class="artwork-card-hover-desc">{{ Str::limit($artwork->description, 120) }}</p>
+                @endif
+                <span class="artwork-card-hover-link">
+                    {{ __('app.card_view') }} <i class="fas fa-arrow-right"></i>
+                </span>
+            </div>
         </div>
 
         @if($artwork->price > 0)
-            <div class="price-tag">
-                {{ number_format($artwork->price, 0, ',', ' ') }} ₽
-            </div>
+            <div class="price-tag">{{ number_format($artwork->price, 0, ',', ' ') }} ₴</div>
         @endif
     </a>
 
-    <div class="artwork-info">
-        <div class="flex justify-between items-start">
-            <div class="pr-2">
-                <h3 class="artwork-title" title="{{ $artwork->title }}">
-                    {{ Str::limit($artwork->title, 30) }}
-                </h3>
-                <p class="artwork-artist">
-                    {{ $artwork->user->name }}
-                </p>
-            </div>
-            
-            <div class="flex space-x-3 text-gray-500 text-sm">
-                <span class="flex items-center" title="{{ $artwork->likes_count ?? 0 }} лайков">
-                    <i class="fas fa-heart mr-1"></i>
-                    <span>{{ $artwork->likes_count ?? 0 }}</span>
-                </span>
-                <span class="flex items-center" title="{{ $artwork->comments_count ?? 0 }} комментариев">
-                    <i class="far fa-comment mr-1"></i>
-                    <span>{{ $artwork->comments_count ?? 0 }}</span>
-                </span>
-            </div>
-        </div>
-        
-        @if($artwork->categories->isNotEmpty())
-            <div class="mt-2 flex flex-wrap gap-1">
-                @foreach($artwork->categories->take(2) as $category)
-                    <a href="/gallery/category/{{ $category->id }}" 
-                       class="inline-block px-2 py-1 text-xs rounded-full bg-indigo-50 text-indigo-700 hover:bg-indigo-100 transition-colors">
-                        {{ $category->name }}
-                    </a>
-                @endforeach
-                @if($artwork->categories->count() > 2)
-                    <span class="inline-block px-2 py-1 text-xs rounded-full bg-gray-100 text-gray-500">
-                        +{{ $artwork->categories->count() - 2 }}
-                    </span>
-                @endif
-            </div>
+    <div class="artwork-card-body">
+        <h3 class="artwork-card-title">{{ Str::limit($artwork->title, 30) }}</h3>
+        <p class="artwork-card-meta">
+            @foreach($artwork->categories->take(2) as $cat)
+                {{ $cat->name }}@if(!$loop->last), @endif
+            @endforeach
+        </p>
+        @if($artwork->price > 0)
+            <p class="artwork-card-price">{{ number_format($artwork->price, 0, ',', ' ') }} ₴</p>
         @endif
+        <div class="artwork-card-stats">
+            <span><i class="fas fa-heart artwork-card-heart"></i>{{ $artwork->likes_count ?? 0 }}</span>
+            <span><i class="far fa-comment artwork-card-comment"></i>{{ $artwork->comments_count ?? 0 }}</span>
+        </div>
     </div>
 </div>
-
-@push('scripts')
-@endpush

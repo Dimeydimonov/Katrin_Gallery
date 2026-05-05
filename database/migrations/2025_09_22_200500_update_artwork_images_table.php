@@ -34,10 +34,8 @@ return new class extends Migration
                 $table->boolean('is_primary')->default(false)->after('order');
             }
             
-            try {
+            if (!Schema::hasIndex('artwork_images', 'artwork_images_artwork_id_order_index')) {
                 $table->index(['artwork_id', 'order']);
-            } catch (\Throwable $e) {
-                
             }
         });
     }

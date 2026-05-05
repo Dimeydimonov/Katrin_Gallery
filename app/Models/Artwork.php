@@ -56,6 +56,7 @@ class Artwork extends Model
     }
 
     
+    // автослаг
     protected static function boot()
     {
         parent::boot();
@@ -103,25 +104,10 @@ class Artwork extends Model
         return $this->comments()->whereNull('parent_id');
     }
 
+    // полиморфные лайки, с гита
     public function likes(): MorphMany
     {
         return $this->morphMany(Like::class, 'likeable');
-    }
-
-    
-    public function getIsLikedAttribute(): bool
-    {
-        if (!auth()->check()) {
-            return false;
-        }
-
-        return $this->likes()->where('user_id', auth()->id())->exists();
-    }
-
-    
-    public function getLikesCountAttribute(): int
-    {
-        return $this->likes()->count();
     }
 
     public function user(): BelongsTo
@@ -146,6 +132,14 @@ class Artwork extends Model
     {
         return $query->where('title', 'like', "%{$search}%")
                     ->orWhere('description', 'like', "%{$search}%");
+    }
+
+    public function isLikedBy($userId): bool
+    {
+        if (!$userId) {
+            return false;
+        }
+        return $this->likes()->where('user_id', $userId)->exists();
     }
 
     public function images(): HasMany
